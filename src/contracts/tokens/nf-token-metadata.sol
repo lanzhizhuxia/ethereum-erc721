@@ -26,6 +26,11 @@ contract NFTokenMetadata is
    */
   mapping (uint256 => string) internal idToUri;
 
+
+  // 所有销毁RED总数
+  uint public totalRedBurn;
+
+
   /**
    * @dev Contract constructor.
    * @notice When implementing this contract don't forget to set nftName and nftSymbol.
@@ -94,6 +99,16 @@ contract NFTokenMetadata is
     {
       delete idToUri[_tokenId];
     }
+
+    if(idToUri[_tokenId] == "RED"){
+      totalRedBurn=totalRedBurn.add(1);
+    }else if(idToUri[_tokenId] == "RED"){
+      totalRedBurn=totalRedBurn.add(1);
+    }else if(idToUri[_tokenId] == "RED"){
+      totalRedBurn=totalRedBurn.add(1);
+    }
+
+
   }
 
   /**
