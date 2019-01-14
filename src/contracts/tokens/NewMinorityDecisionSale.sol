@@ -1,9 +1,10 @@
 pragma solidity 0.5.1;
 
-import "https://github.com/0xcert/ethereum-erc721/src/contracts/tokens/nf-token.sol";
-import "https://github.com/0xcert/ethereum-erc721/src/contracts/tokens/erc721-metadata.sol";
-import "https://github.com/0xcert/ethereum-erc721/src/contracts/tokens/erc721-enumerable.sol";
-import "https://github.com/0xcert/ethereum-erc721/src/contracts/ownership/ownable.sol";
+import ".//nf-token.sol";
+import "./erc721-metadata.sol";
+import "./erc721-enumerable.sol";
+import "../ownership/ownable.sol";
+
 
 /**
  * @dev Optional metadata implementation for ERC-721 non-fungible token standard.
@@ -53,7 +54,7 @@ ERC721Enumerable
   /**
   * @dev A mapping from NFT ID to the address that owns it.
   */
-  mapping (uint256 => address payable) internal idToOwner;
+  mapping (uint256 => address payable) private idToOwnerPayable;
 
 
 
@@ -132,7 +133,7 @@ ERC721Enumerable
    * @param _to The address that will own the minted NFT.
    */
   function mintRed(
-    address _to
+    address payable _to
 
   )
   external payable
@@ -148,6 +149,7 @@ ERC721Enumerable
 
     _mint(_to, totalRedSalesReleased);
     _setTokenUri(totalRedSalesReleased, "RED");
+    idToOwnerPayable[totalGreenSalesReleased] = _to;
   }
 
   /**
@@ -155,7 +157,7 @@ ERC721Enumerable
    * @param _to The address that will own the minted NFT.
    */
   function mintBlue(
-    address _to
+    address payable _to
 
   )
   external payable
@@ -171,6 +173,7 @@ ERC721Enumerable
 
     _mint(_to, totalBlueSalesReleased);
     _setTokenUri(totalBlueSalesReleased, "BLUE");
+    idToOwnerPayable[totalBlueSalesReleased] = _to;
   }
 
   /**
@@ -178,7 +181,7 @@ ERC721Enumerable
   * @param _to The address that will own the minted NFT.
   */
   function mintGreen(
-    address _to
+    address payable _to
 
   )
   external payable
@@ -194,6 +197,7 @@ ERC721Enumerable
 
     _mint(_to, totalGreenSalesReleased);
     _setTokenUri(totalGreenSalesReleased, "GREEN");
+    idToOwnerPayable[totalGreenSalesReleased] = _to;
   }
 
   /**
@@ -400,15 +404,15 @@ ERC721Enumerable
       // 从1开始循环遍历所有
       for (tokenId = 1; tokenId <= PRIVATE_SALE_AMOUNT; tokenId++) {
 
-        address payable owner = idToOwner[tokenId];
-        // 判断当前tokenId拥有者是否为_owner
-        if (address(0) != owner) {
-          //address(this).tra
-          //super.transfer(owner,1000);
-          owner.transfer(dividendUnits);
+        //address payable owner = idToOwner[tokenId];
+        // // 判断当前tokenId拥有者是否为_owner
+        // if (address(0) != owner) {
+        //   //address(this).tra
+        //   //super.transfer(owner,1000);
+        //   owner.transfer(dividendUnits);
 
 
-        }
+        // }
       }
 
     } else if(countB<countR&&countB<countG){
@@ -557,24 +561,6 @@ ERC721Enumerable
     ownerToIds[_from].length--;
   }
 
-  /**
-   * @dev Assignes a new NFT to an address.
-   * @notice Use and override this function with caution. Wrong usage can have serious consequences.
-   * @param _to Address to wich we want to add the NFT.
-   * @param _tokenId Which NFT we want to add.
-   */
-  function _addNFToken(
-    address payable _to,
-    uint256 _tokenId
-  )
-  internal
-  {
-    require(idToOwner[_tokenId] == address(0));
-    idToOwner[_tokenId] = _to;
-
-    uint256 length = ownerToIds[_to].push(_tokenId);
-    idToOwnerIndex[_tokenId] = length - 1;
-  }
 
   /**
    * @dev Helper function that gets NFT count of owner. This is needed for overriding in enumerable
