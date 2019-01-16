@@ -60,10 +60,13 @@
   "devDependencies": {
     "@specron/cli": "^0.5.1",
     "@specron/spec": "^0.5.1",
-    "solc": "^0.5.1",
+    "solc": "0.5.1",
     "solhint": "^1.4.1",
     "ts-node": "^7.0.1",
     "typescript": "^3.2.2",
     "web3": "^1.0.0-beta.37"
+  },
+  "dependencies": {
+    "bignumber.js": "^8.0.2"
   }
 }
