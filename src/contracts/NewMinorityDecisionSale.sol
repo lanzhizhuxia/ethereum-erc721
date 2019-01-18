@@ -45,6 +45,8 @@ Ownable
 
   uint private totalTokens;
 
+  address public lastUser;
+
 
 
 
@@ -91,6 +93,7 @@ Ownable
     _setTokenUri(totalRedSalesReleased, "RED");
     totalTokens = totalTokens.add(1);
     //address(this).send(msg.value);
+    lastUser = msg.sender;
 
 
   }
@@ -113,6 +116,7 @@ Ownable
     _mint(msg.sender, totalBlueSalesReleased);
     _setTokenUri(totalBlueSalesReleased, "BLUE");
     totalTokens = totalTokens.add(1);
+    lastUser = msg.sender;
 
 
   }
@@ -135,6 +139,7 @@ Ownable
     _mint(msg.sender, totalGreenSalesReleased);
     _setTokenUri(totalGreenSalesReleased, "GREEN");
     totalTokens = totalTokens.add(1);
+    lastUser = msg.sender;
 
 
   }
@@ -161,6 +166,7 @@ Ownable
     }else {
       totalGreenBurn=totalGreenBurn.add(1);
     }
+    lastUser = msg.sender;
   }
 
   /**
@@ -260,8 +266,8 @@ Ownable
   }
 
   /**
- * @dev 查看领先者
- */
+   * @dev 查看领先者
+   */
   function checkWinner() public view returns (string memory) {
 
     uint countR = countRed();
@@ -270,15 +276,34 @@ Ownable
 
     string memory res;
 
-    if(countR<countB&&countR<countG){
-      res= "RED";
-    } else if(countB<countR&&countB<countG){
-      res= "BLUE";
-    } else if(countG<countR&&countG<countB){
-      res= "GREEN";
-    } else{
-      res= "No winner";
+
+    // 有一方票数过半触发少数派原则
+    if(countR>2||countB>2||countG>2){
+      if(countR<countB&&countR<countG){
+        res= "RED";
+      } else if(countB<countR&&countB<countG){
+        res= "BLUE";
+      } else if(countG<countR&&countG<countB){
+        res= "GREEN";
+      } else{
+        res= "No winner";
+      }
+    }else{
+      //多数派原则
+
+      if(countR>countB&&countR>countG){
+        res= "RED";
+      } else if(countB>countR&&countB>countG){
+        res= "BLUE";
+      } else if(countG>countR&&countG>countB){
+        res= "GREEN";
+      } else{
+        res= "No winner";
+      }
+
     }
+
+
 
     return res;
   }
@@ -294,64 +319,127 @@ Ownable
     uint countB = countBlue();
     uint countG = countGreen();
 
-    uint dividend = getAddBalanceOf().mul(10).div(7);
+    uint dividend = getAddBalanceOf();
     uint dividendUnits;
 
 
-    if(countR<countB&&countR<countG){
-      //RED win
-      dividendUnits=dividend/countR;
-      uint tokenId;
-      // 从1开始循环遍历所有
-      for (tokenId = 1; tokenId <= PRIVATE_SALE_AMOUNT; tokenId++) {
+    if(countR>2||countB>2||countG>2){
+      if(countR<countB&&countR<countG){
+        //RED win
+        dividendUnits=dividend/countR;
+        uint tokenId;
+        // 从1开始循环遍历所有
+        for (tokenId = 1; tokenId <= PRIVATE_SALE_AMOUNT; tokenId++) {
 
-        address payable owner = address(uint160(idToOwner[tokenId]));
-        // 判断当前tokenId拥有者是否为_owner
-        if (address(0) != owner) {
-          //address(this).tra
-          //super.transfer(owner,1000);
-          owner.transfer(dividendUnits);
+          address payable owner = address(uint160(idToOwner[tokenId]));
+          // 判断当前tokenId拥有者是否为_owner
+          if (address(0) != owner) {
+            //address(this).tra
+            //super.transfer(owner,1000);
+            owner.transfer(dividendUnits);
 
+          }
         }
-      }
 
-    } else if(countB<countR&&countB<countG){
-      //BLUE win
-      dividendUnits=dividend/countB;
-      uint tokenId;
-      // 从1开始循环遍历所有
-      for (tokenId = PRIVATE_SALE_AMOUNT+1; tokenId <= PRIVATE_SALE_AMOUNT*2; tokenId++) {
+      } else if(countB<countR&&countB<countG){
+        //BLUE win
+        dividendUnits=dividend/countB;
+        uint tokenId;
+        // 从1开始循环遍历所有
+        for (tokenId = PRIVATE_SALE_AMOUNT+1; tokenId <= PRIVATE_SALE_AMOUNT*2; tokenId++) {
 
-        address payable owner = address(uint160(idToOwner[tokenId]));
-        // 判断当前tokenId拥有者是否为_owner
-        if (address(0) != owner) {
-          //address(this).tra
-          //super.transfer(owner,1000);
-          owner.transfer(dividendUnits);
+          address payable owner = address(uint160(idToOwner[tokenId]));
+          // 判断当前tokenId拥有者是否为_owner
+          if (address(0) != owner) {
+            //address(this).tra
+            //super.transfer(owner,1000);
+            owner.transfer(dividendUnits);
 
+          }
         }
-      }
 
-    } else if(countG<countR&&countG<countB){
-      //GREEN win
-      dividendUnits=dividend/countG;
-      uint tokenId;
-      // 从1开始循环遍历所有
-      for (tokenId = 2*PRIVATE_SALE_AMOUNT+1; tokenId <= PRIVATE_SALE_AMOUNT*3; tokenId++) {
+      } else if(countG<countR&&countG<countB){
+        //GREEN win
+        dividendUnits=dividend/countG;
+        uint tokenId;
+        // 从1开始循环遍历所有
+        for (tokenId = 2*PRIVATE_SALE_AMOUNT+1; tokenId <= PRIVATE_SALE_AMOUNT*3; tokenId++) {
 
-        address payable owner = address(uint160(idToOwner[tokenId]));
-        // 判断当前tokenId拥有者是否为_owner
-        if (address(0) != owner) {
-          //address(this).tra
-          //super.transfer(owner,1000);
-          owner.transfer(dividendUnits);
+          address payable owner = address(uint160(idToOwner[tokenId]));
+          // 判断当前tokenId拥有者是否为_owner
+          if (address(0) != owner) {
+            //address(this).tra
+            //super.transfer(owner,1000);
+            owner.transfer(dividendUnits);
 
+          }
         }
-      }
 
-    } else{
-      //No winner
-      ownerWallet.transfer(address(this).balance);
+      } else{
+        address payable winner = address(uint160(lastUser));
+        winner.transfer(address(this).balance);
+
+      }
+    }else{
+      //多数派原则
+
+      if(countR>countB&&countR>countG){
+        //RED win
+        dividendUnits=dividend/countR;
+        uint tokenId;
+        // 从1开始循环遍历所有
+        for (tokenId = 1; tokenId <= PRIVATE_SALE_AMOUNT; tokenId++) {
+
+          address payable owner = address(uint160(idToOwner[tokenId]));
+          // 判断当前tokenId拥有者是否为_owner
+          if (address(0) != owner) {
+            //address(this).tra
+            //super.transfer(owner,1000);
+            owner.transfer(dividendUnits);
+
+          }
+        }
+
+      } else if(countB>countR&&countB>countG){
+        //BLUE win
+        dividendUnits=dividend/countB;
+        uint tokenId;
+        // 从1开始循环遍历所有
+        for (tokenId = PRIVATE_SALE_AMOUNT+1; tokenId <= PRIVATE_SALE_AMOUNT*2; tokenId++) {
+
+          address payable owner = address(uint160(idToOwner[tokenId]));
+          // 判断当前tokenId拥有者是否为_owner
+          if (address(0) != owner) {
+            //address(this).tra
+            //super.transfer(owner,1000);
+            owner.transfer(dividendUnits);
+
+          }
+        }
+
+      } else if(countG>countR&&countG>countB){
+        //GREEN win
+        dividendUnits=dividend/countG;
+        uint tokenId;
+        // 从1开始循环遍历所有
+        for (tokenId = 2*PRIVATE_SALE_AMOUNT+1; tokenId <= PRIVATE_SALE_AMOUNT*3; tokenId++) {
+
+          address payable owner = address(uint160(idToOwner[tokenId]));
+          // 判断当前tokenId拥有者是否为_owner
+          if (address(0) != owner) {
+            //address(this).tra
+            //super.transfer(owner,1000);
+            owner.transfer(dividendUnits);
+
+          }
+        }
+
+      } else{
+
+        address payable winner = address(uint160(lastUser));
+        winner.transfer(address(this).balance);
+
+      }
 
     }
 
